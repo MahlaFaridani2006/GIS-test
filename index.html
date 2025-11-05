@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mellat Park Location Tracker</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+    #map {
+      height: 100vh;
+      width: 100vw;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script>
+    // 🎯 Mellat Park coordinates (Mashhad)
+    const target = { lat: 36.3140, lng: 59.5680 };
+
+    // Initialize the map centered on the target location
+    const map = L.map('map').setView([target.lat, target.lng], 15);
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add marker for Mellat Park
+    const targetMarker = L.marker([target.lat, target.lng]).addTo(map)
+      .bindPopup('<b>Mellat Park</b><br>Destination')
+      .openPopup();
+
+    // Function to calculate distance between two coordinates (in meters)
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // meters
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2 - lat1) * Math.PI/180;
+      const Δλ = (lon2 - lon1) * Math.PI/180;
+      const a = Math.sin(Δφ/2)**2 +
+                Math.cos(φ1)*Math.cos(φ2) *
+                Math.sin(Δλ/2)**2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    // 🧍 Track user position
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+
+          // Show or update user marker
+          if (window.userMarker) {
+            console.log('user marker',window.userMarker)
+            window.userMarker.setLatLng([userLat, userLng]);
+          } else {
+            window.userMarker = L.marker([userLat, userLng], {
+              icon: L.icon({
+                iconUrl: 'https://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle.png',
+                iconSize: [10, 10]
+              })
+            })
+            .addTo(map)
+            .bindPopup('<b>You are here</b>')
+            .openPopup();
+          }
+
+          // Calculate distance from Mellat Park
+          const distance = getDistance(userLat, userLng, target.lat, target.lng);
+          console.log(`Distance to Mellat Park: ${distance.toFixed(2)} m`);
+
+          // If user arrives within 100 meters, activate function
+          if (distance < 100) {
+            alert("🎉 You have arrived at Mellat Park!");
+          }
+        },
+   (error) => {
+  console.error("Geolocation error:", error);
+  alert("Cannot get your location. Please enable GPS and refresh.");
+},
+
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 10000
+        }
+      );
+    } else {
+      alert("Your browser does not support geolocation.");
+    }
+  </script>
+</body>
+</html>
