@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mellat Park Location Tracker</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    #map {
+      width: 100vw;
+      height: 100vh;
+      color: #07bd076c;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <script>
+
+    var map = L.map('map').setView([51.505, -0.09], 13);
+
+    var marker = L.marker([51.5, -0.09]).addTo(map);
+    marker.bindPopup('hello').openPopup()
+
+    var popup = L.popup()
+      .setLatLng([51.513, -0.09])
+      .setContent("I am a standalone popup.")
+      .openOn(map);
+
+    var circle = L.circle([51.508, -0.11], {
+      color: 'green',
+      fillColor: '#07bd076c',
+      fillOpacity: 0.7,
+      radius: 500
+    }).addTo(map);
+
+    function welcome() {
+      alert('welcome')
+
+    }
+    circle.on('click', welcome)
+
+
+var popup = L.popup();
+
+function onMapClick(e) {
+
+    popup
+        .setLatLng(e.latlng)
+        .setContent("You clicked the map at " + e.latlng.toString())
+        .openOn(map);
+
+        console.log(e)
+}
+
+map.on('click', onMapClick);
+
+
+    var polygon = L.polygon([
+      [51.509, -0.08],
+      [51.503, -0.06],
+      [51.51, -0.047]
+    ]).addTo(map);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    console.log('navigator',navigator.geolocation.getCurrentPosition)
+
+  </script>
+</body>
+
+</html>
